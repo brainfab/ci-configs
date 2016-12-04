@@ -1,0 +1,20 @@
+machine:
+  php:
+    version: 7.0.4
+  timezone:
+    Europe/Kiev
+
+dependencies:
+  pre:
+    - createdb database_test
+  cache_directories:
+    - ~/.composer/cache
+  override:
+    - composer global require hirak/prestissimo phpunit/phpunit:~5.0
+    - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
+    - php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - php artisan key:generate
+
+test:
+  override:
+    - ~/.composer/vendor/bin/phpunit
