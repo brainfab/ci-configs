@@ -6,15 +6,16 @@ machine:
 
 dependencies:
   pre:
-    - createdb database_test
+    - createdb homestead
   cache_directories:
     - ~/.composer/cache
   override:
-    - composer global require hirak/prestissimo phpunit/phpunit:~5.0
+    - composer global require squizlabs/php_codesniffer
     - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
     - php -r "file_exists('.env') || copy('.env.example', '.env');"
     - php artisan key:generate
 
 test:
   override:
-    - ~/.composer/vendor/bin/phpunit
+    - ./vendor/phpunit/phpunit/phpunit -d memory_limit=2014M
+    - ~/.composer/vendor/bin/phpcs --standard=PSR2 app/
