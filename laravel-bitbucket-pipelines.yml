@@ -6,8 +6,10 @@ pipelines:
         script:
           - php --version
           - composer --version
-          - composer install
+          - composer global require squizlabs/php_codesniffer
+          - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
           - php -r "file_exists('.env') || copy('.env.example', '.env');"
           - php artisan key:generate
           - ./vendor/phpunit/phpunit/phpunit --version
           - ./vendor/phpunit/phpunit/phpunit
+          - ~/.composer/vendor/bin/phpcs --standard=PSR2 app/
