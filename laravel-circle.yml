@@ -1,15 +1,21 @@
-image: shincoder/homestead:php7.0
+machine:
+  php:
+    version: 7.0.4
+  timezone:
+    Europe/Kiev
 
-pipelines:
-  default:
-    - step:
-        script:
-          - php --version
-          - composer --version
-          - composer global require squizlabs/php_codesniffer
-          - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
-          - php -r "file_exists('.env') || copy('.env.example', '.env');"
-          - php artisan key:generate
-          - ./vendor/phpunit/phpunit/phpunit --version
-          - ./vendor/phpunit/phpunit/phpunit
-          - ~/.composer/vendor/bin/phpcs --standard=PSR2 app/
+dependencies:
+  pre:
+    - createdb homestead
+  cache_directories:
+    - ~/.composer/cache
+  override:
+    - composer global require squizlabs/php_codesniffer
+    - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
+    - php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - php artisan key:generate
+
+test:
+  override:
+    - ./vendor/phpunit/phpunit/phpunit -d memory_limit=2014M
+    - ~/.composer/vendor/bin/phpcs --standard=PSR2 app/
