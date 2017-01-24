@@ -1,0 +1,23 @@
+box: shincoder/homestead:php7.0
+
+build:
+  steps:
+    - script:
+        name: Install dependencies
+        code: |
+          composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
+
+    - script:
+        name: Create env file
+        code: |-
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - script:
+        name: Generate application key
+        code: |-
+          php artisan key:generate
+
+    - script:
+        name: Run phpunit
+        code: |-
+          ./vendor/phpunit/phpunit/phpunit
