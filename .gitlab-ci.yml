@@ -1,3 +1,5 @@
+#You need to add 2 variables SSH_PRIVATE_KEY and SSH_PUBLIC_KEY for auto deployment
+#Keep in mind that gitlab use "mysql" as DB_HOST
 stages:
 - test
 - deploy
