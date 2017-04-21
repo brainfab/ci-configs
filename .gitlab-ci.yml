@@ -1,0 +1,50 @@
+stages:
+- test
+- deploy
+
+variables:
+  MYSQL_DATABASE: database_name
+  MYSQL_ROOT_PASSWORD: secret
+
+test:
+  image: shincoder/homestead:php7.0
+  stage: test
+  services:
+    - mysql:5.7
+  before_script:
+    - php --version
+    - composer --version
+    - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
+    - php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - php artisan key:generate
+    - php artisan migrate --database=mysql_testing --seed
+    - npm --version
+    - npm install
+    - npm run dev
+  script:
+  - ./vendor/phpunit/phpunit/phpunit --colors
+  cache:
+    paths:
+      - vendor
+      - node_modules
+
+deploy:
+  image: shincoder/homestead:php7.0
+  stage: deploy
+  only:
+    - develop
+  before_script:
+    - php --version
+    - composer --version
+    - composer install --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction
+  script:
+    - mkdir ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PUBLIC_KEY" > ~/.ssh/id_rsa.pub
+    - chmod 600 ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa.pub
+    - ./vendor/bin/dep deploy dev
+  cache:
+    paths:
+      - vendor
+      - node_modules
